@@ -57,6 +57,8 @@ public class RegistrationProcess{
         }
         printWriter.flush();
         printWriter.close();
+        writer.close();
+        write.close();
     }
 
     public void searchByName() throws IOException{
@@ -82,6 +84,8 @@ public class RegistrationProcess{
         if(!flag){
             System.out.println("\nNo data found in this name...!\n");
         }
+        file.close();
+        bf.close();
     }
     public void searchByNumber() throws IOException {
         System.out.println("Enter your number for searching : ");
@@ -104,6 +108,8 @@ public class RegistrationProcess{
         if(!flag){
             System.out.println("No data found in this number...!");
         }
+        file.close();
+        bf.close();
     }
     boolean alreadyExistNumber(String number) throws IOException{
         FileReader file = new FileReader("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt");
@@ -117,6 +123,8 @@ public class RegistrationProcess{
                 flag = true;
             }
         }
+        file.close();
+        bf.close();
         return flag;
     }
     int countingLines() throws IOException {
@@ -126,6 +134,8 @@ public class RegistrationProcess{
         while((reader.readLine())!=null){
             count++;
         }
+        read.close();
+        reader.close();
         return count;
     }
 

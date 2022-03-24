@@ -1,11 +1,14 @@
 package registration;
 
 import java.io.*;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class RegistrationProcess{
 
     Scanner in = new Scanner(System.in);
+    Details details = new Details();
+    private static final String path="C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt";
     public void displayDetails(String[] array){
 
         System.out.println("Your name is           : "+array[0]);
@@ -13,17 +16,38 @@ public class RegistrationProcess{
         System.out.println("Your district is       : "+array[2]);
         System.out.println("Your state is          : "+array[3]+" ");
     }
-
-    public void register() throws IOException {
-
-        FileWriter write = new FileWriter("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt",true);
-        BufferedWriter writer = new BufferedWriter(write);
-        PrintWriter printWriter = new PrintWriter(writer);
-
-        Details details = new Details();
-
+    void searchOptions() throws IOException {
+        boolean flag = true;
+        try {
+            while (flag) {
+                System.out.println(" (1) -- > For search with vehicle number \n (2) --> For search with owner name \n Enter your choice : ");
+                int searchChoice = in.nextByte();
+                switch (searchChoice) {
+                    case 1 -> {
+                        flag = false;
+                        searchByNumber();
+                    }
+                    case 2 -> {
+                        flag = false;
+                        searchByName();
+                    }
+                    default -> System.out.println("Enter valid option...!");
+                }
+            }
+        } catch (InputMismatchException inputMismatchException) {
+            System.out.println("-----Enter valid key-----");
+        }
+    }
+    void getUserInput() throws IOException{
         System.out.println("Enter Your name : ");
-        details.setName(in.nextLine());
+        String name=in.nextLine();
+        boolean nameCheck=inputFormatChecker(name);
+        if(nameCheck) {
+            errorMessage();
+        }
+        else{
+            details.setName(name);
+        }
         System.out.println("Enter Your vehicle number in this format (TN 76 M 5540): ");
         details.setVehicleNumber(in.nextLine());
         boolean key=alreadyExistNumber(details.getVehicleNumber());
@@ -37,10 +61,30 @@ public class RegistrationProcess{
             return;
         }
         System.out.println("Enter your district : ");
-        details.setDistrict(in.nextLine());
+        String district=in.nextLine();
+        boolean districtCheck=inputFormatChecker(district);
+        if(!districtCheck) {
+            details.setDistrict(district);
+        }
+        else {
+            errorMessage();
+        }
         System.out.println("Enter your state : ");
-        details.setState(in.nextLine());
+        String state=in.nextLine();
+        boolean stateCheck=inputFormatChecker(state);
+        if(!stateCheck) {
+            details.setState(state);
+        }
+        else {
+            errorMessage();
+        }
+    }
+    public void register() throws IOException {
 
+        FileWriter write = new FileWriter(path,true);
+        BufferedWriter writer = new BufferedWriter(write);
+        PrintWriter printWriter = new PrintWriter(writer);
+        getUserInput();
         printWriter.print(details.getName()+",");
         printWriter.print(details.getVehicleNumber()+",");
         printWriter.print(details.getDistrict()+",");
@@ -49,7 +93,7 @@ public class RegistrationProcess{
 
         System.out.println("Register successfully...! \n Enter (Yes) for more registration (No) for back to Main Menu : ");
         char more = in.nextLine().charAt(0);
-        if(more==89||more==121){
+        if(more=='y'||more=='Y'){
             register();
         }
         else{
@@ -62,12 +106,20 @@ public class RegistrationProcess{
     }
 
     public void searchByName() throws IOException{
+        Scanner in = new Scanner(System.in);
         System.out.println("Enter your name for searching : ");
-        String name=in.nextLine();
-
-        FileReader file = new FileReader("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt");
+        String name=in.next();
+        searching(name,0);
+    }
+    public void searchByNumber() throws IOException {
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter your number for searching : ");
+        String number=in.nextLine();
+        searching(number,1);
+    }
+    void searching(String name,int search) throws IOException{
+        FileReader file = new FileReader(path);
         BufferedReader bf= new BufferedReader(file);
-
         System.err.println("\n-----Your details showing below-----\n");
         String line;
         boolean flag=false;
@@ -75,7 +127,7 @@ public class RegistrationProcess{
         for(int i=0;i<lines;i++){
             line = bf.readLine();
             String[] array=line.split(",");
-            if(array[0].equalsIgnoreCase(name))
+            if(array[search].equalsIgnoreCase(name))
             {
                 flag=true;
                 displayDetails(array);
@@ -87,32 +139,8 @@ public class RegistrationProcess{
         file.close();
         bf.close();
     }
-    public void searchByNumber() throws IOException {
-        System.out.println("Enter your number for searching : ");
-        String number=in.nextLine();
-
-        FileReader file = new FileReader("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt");
-        BufferedReader bf= new BufferedReader(file);
-        System.err.println("\n-----Your details showing below-----\n");
-        String line;
-        boolean flag=false;
-        for(int i=0;i<countingLines();i++){
-            line = bf.readLine();
-            String[] array=line.split(",");
-            if(array[1].equalsIgnoreCase(number))
-            {
-                flag=true;
-                displayDetails(array);
-            }
-        }
-        if(!flag){
-            System.out.println("No data found in this number...!");
-        }
-        file.close();
-        bf.close();
-    }
     boolean alreadyExistNumber(String number) throws IOException{
-        FileReader file = new FileReader("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt");
+        FileReader file = new FileReader(path);
         BufferedReader bf= new BufferedReader(file);
         String line;
         boolean flag=false;
@@ -129,7 +157,7 @@ public class RegistrationProcess{
     }
     int countingLines() throws IOException {
         int count=0;
-        FileReader read = new FileReader("C:\\Users\\sys\\Desktop\\File\\RegistrationRecords.txt");
+        FileReader read = new FileReader(path);
         BufferedReader reader = new BufferedReader(read);
         while((reader.readLine())!=null){
             count++;
@@ -143,5 +171,19 @@ public class RegistrationProcess{
         boolean check;
         check=number.matches("[A-Z]{2}\s[0-9]{2}\s[A-Z]\s[0-9]{4}");
         return check;
+    }
+    protected boolean inputFormatChecker(String detail){
+        boolean flag=false;
+        for(int i=0;i<detail.length();i++){
+            if(detail.charAt(i)==','){
+                flag=true;
+                break;
+            }
+        }
+        return flag;
+    }
+    void errorMessage() throws IOException{
+        System.out.println("Don't add (,) symbol  with your details");
+        register();
     }
 }

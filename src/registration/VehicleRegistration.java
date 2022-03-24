@@ -6,7 +6,7 @@ import java.util.Scanner;
 
 public class VehicleRegistration extends RegistrationProcess{
 
-    private static boolean key=true;
+    private static boolean starter=true;
     private final Scanner in = new Scanner(System.in);
 
     public void mainMenu() throws IOException {
@@ -17,7 +17,7 @@ public class VehicleRegistration extends RegistrationProcess{
                 case 1 -> searchOptions();
                 case 2 -> register();
                 case 3 -> {
-                    key = false;
+                    starter = false;
                     System.err.println("---------Thanks for coming----------");
                 }
                 default -> System.err.println("Your option is not valid...!");
@@ -30,7 +30,7 @@ public class VehicleRegistration extends RegistrationProcess{
     public static void main(String[] args) throws IOException{
         System.out.println("Welcome to vehicle registration...!");
         VehicleRegistration obj=new VehicleRegistration();
-        while(key) {
+        while(starter) {
             obj.mainMenu();
         }
     }

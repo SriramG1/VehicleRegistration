@@ -14,21 +14,21 @@ public class RegistrationProcess{
         System.out.println("Your name is           : "+array[0]);
         System.out.println("Your vehicle number is : "+array[1]);
         System.out.println("Your district is       : "+array[2]);
-        System.out.println("Your state is          : "+array[3]+" ");
+        System.out.println("Your state is          : "+array[3]+"\n");
     }
     void searchOptions() throws IOException {
-        boolean flag = true;
+        boolean isValidOption = true;
         try {
-            while (flag) {
+            while (isValidOption) {
                 System.out.println(" (1) -- > For search with vehicle number \n (2) --> For search with owner name \n Enter your choice : ");
                 int searchChoice = in.nextByte();
                 switch (searchChoice) {
                     case 1 -> {
-                        flag = false;
+                        isValidOption = false;
                         searchByNumber();
                     }
                     case 2 -> {
-                        flag = false;
+                        isValidOption = false;
                         searchByName();
                     }
                     default -> System.out.println("Enter valid option...!");
@@ -39,40 +39,43 @@ public class RegistrationProcess{
         }
     }
     void getUserInput() throws IOException{
+        Scanner in = new Scanner(System.in);
         System.out.println("Enter Your name : ");
         String name=in.nextLine();
-        boolean nameCheck=inputFormatChecker(name);
-        if(nameCheck) {
-            errorMessage();
+        boolean isValidName=inputFormatChecker(name);
+        if(isValidName) {
+            details.setName(name);
         }
         else{
-            details.setName(name);
+            errorMessage();
+            return;
         }
         System.out.println("Enter Your vehicle number in this format (TN 76 M 5540): ");
         details.setVehicleNumber(in.nextLine());
-        boolean key=alreadyExistNumber(details.getVehicleNumber());
-        if(key){
+        boolean alreadyExist=alreadyExistNumber(details.getVehicleNumber());
+        if(alreadyExist){
             System.out.println("\n-----Your number is already exists-----\n");
             return;
         }
-        boolean check = numberFormat(details.getVehicleNumber());
-        if(!check){
+        boolean isValidNumberFormat = numberFormat(details.getVehicleNumber());
+        if(!isValidNumberFormat){
             System.err.println("\n-----Your number is not a vehicle number-----\n");
             return;
         }
         System.out.println("Enter your district : ");
         String district=in.nextLine();
-        boolean districtCheck=inputFormatChecker(district);
-        if(!districtCheck) {
+        boolean isValidDistrictName=inputFormatChecker(district);
+        if(isValidDistrictName) {
             details.setDistrict(district);
         }
         else {
             errorMessage();
+            return;
         }
         System.out.println("Enter your state : ");
         String state=in.nextLine();
-        boolean stateCheck=inputFormatChecker(state);
-        if(!stateCheck) {
+        boolean isValidStateName=inputFormatChecker(state);
+        if(isValidStateName) {
             details.setState(state);
         }
         else {
@@ -92,7 +95,7 @@ public class RegistrationProcess{
         printWriter.println();
 
         System.out.println("Register successfully...! \n Enter (Yes) for more registration (No) for back to Main Menu : ");
-        char more = in.nextLine().charAt(0);
+        char more = in.next().charAt(0);
         if(more=='y'||more=='Y'){
             register();
         }
@@ -119,41 +122,41 @@ public class RegistrationProcess{
     }
     void searching(String name,int search) throws IOException{
         FileReader file = new FileReader(path);
-        BufferedReader bf= new BufferedReader(file);
+        BufferedReader reader= new BufferedReader(file);
         System.err.println("\n-----Your details showing below-----\n");
         String line;
-        boolean flag=false;
-        int lines=countingLines();
-        for(int i=0;i<lines;i++){
-            line = bf.readLine();
+        boolean emptyData=true;
+        int numberOfLines=countingLines();
+        for(int i=0;i<numberOfLines;i++){
+            line = reader.readLine();
             String[] array=line.split(",");
             if(array[search].equalsIgnoreCase(name))
             {
-                flag=true;
+                emptyData=false;
                 displayDetails(array);
             }
         }
-        if(!flag){
+        if(emptyData){
             System.out.println("\nNo data found in this name...!\n");
         }
         file.close();
-        bf.close();
+        reader.close();
     }
     boolean alreadyExistNumber(String number) throws IOException{
         FileReader file = new FileReader(path);
-        BufferedReader bf= new BufferedReader(file);
+        BufferedReader reader= new BufferedReader(file);
         String line;
-        boolean flag=false;
+        boolean isAlreadyExist=false;
         for(int i=0;i<countingLines();i++) {
-            line = bf.readLine();
+            line = reader.readLine();
             String[] array = line.split(",");
             if (array[1].equalsIgnoreCase(number)) {
-                flag = true;
+                isAlreadyExist = true;
             }
         }
         file.close();
-        bf.close();
-        return flag;
+        reader.close();
+        return isAlreadyExist;
     }
     int countingLines() throws IOException {
         int count=0;
@@ -168,22 +171,22 @@ public class RegistrationProcess{
     }
 
     public boolean numberFormat(String number){
-        boolean check;
-        check=number.matches("[A-Z]{2}\s[0-9]{2}\s[A-Z]\s[0-9]{4}");
-        return check;
+        boolean isValidFormat;
+        isValidFormat=number.matches("[A-Z]{2}\s[0-9]{2}\s[A-Z]\s[0-9]{4}");
+        return isValidFormat;
     }
     protected boolean inputFormatChecker(String detail){
-        boolean flag=false;
+        boolean inputFormat=true;
         for(int i=0;i<detail.length();i++){
             if(detail.charAt(i)==','){
-                flag=true;
+                inputFormat=false;
                 break;
             }
         }
-        return flag;
+        return inputFormat;
     }
     void errorMessage() throws IOException{
         System.out.println("Don't add (,) symbol  with your details");
-        register();
+        getUserInput();
     }
 }
